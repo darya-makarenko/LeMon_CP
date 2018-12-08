@@ -24,6 +24,14 @@ enum DeviceButton {
 	NUMPAD7 = VK_NUMPAD7,
 	NUMPAD8 = VK_NUMPAD8,
 	NUMPAD9 = VK_NUMPAD9,
+    MAT_CROSS = 64,
+    MAT_UP = 4,
+    MAT_CIRCLE = 128,
+    MAT_RIGHT = 8,
+    MAT_SQUARE = 32,
+    MAT_DOWN = 2,
+    MAT_TRIANGLE = 16,
+    MAT_LEFT = 1,
 	DeviceButton_Invalid
 };
 

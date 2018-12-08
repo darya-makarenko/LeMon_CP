@@ -2,6 +2,7 @@
 #include "Statistic.h"
 #include "GameInput.h"
 #include <map>
+#include <time.h>
 
 struct StatStruct
 {
@@ -26,7 +27,8 @@ struct StatStruct
 class GameStatistic
 {
 public:
-	GameStatistic(long startTime);
+    GameStatistic();
+    GameStatistic(long startTime);
 	~GameStatistic() {}
 	std::map<GameButton, Statistic> getButtonsStatistic();
 	int getCountErrorKeys();
@@ -35,13 +37,15 @@ public:
 	int getCountRightKeys();
 	int getCountKeys();
 	void buttonPush(bool isRight, GameButton button, long pushTime);
-	
+    time_t getEndTime();
+    void stopStatistic();
 
 private:
 	long lastRightTime;
 	long startTime;
 	int counErrorKeys;
 	int countRightKeys;
+    time_t endTime;
 	std::map<GameButton, Statistic> statisticMap{
 		{ BUTTON_DOWN, Statistic() },
 		{ BUTTON_UP, Statistic() },
