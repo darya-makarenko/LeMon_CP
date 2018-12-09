@@ -27,6 +27,7 @@ struct StatStruct
 class GameStatistic
 {
 public:
+	GameStatistic();
 	GameStatistic(long startTime);
 	~GameStatistic() {}
 	std::map<GameButton, Statistic> getButtonsStatistic();
@@ -36,22 +37,23 @@ public:
 	int getCountRightKeys();
 	int getCountKeys();
 	void buttonPush(bool isRight, GameButton button, long pushTime);
-	
+	time_t getEndTime();
+	void stopStatistic();
 
 private:
 	long lastRightTime;
 	long startTime;
 	int counErrorKeys;
 	int countRightKeys;
+	time_t endTime;
 	std::map<GameButton, Statistic> statisticMap{
 		{ BUTTON_DOWN, Statistic() },
-		{ BUTTON_UP, Statistic() },
-		{ BUTTON_LEFT, Statistic() },
-		{ BUTTON_RIGHT, Statistic() },
-		{ BUTTON_UPLEFT, Statistic() },
-		{ BUTTON_UPRIGHT, Statistic() },
-		{ BUTTON_DOWNLEFT, Statistic() },
-		{ BUTTON_DOWNRIGHT, Statistic() }
+	{ BUTTON_UP, Statistic() },
+	{ BUTTON_LEFT, Statistic() },
+	{ BUTTON_RIGHT, Statistic() },
+	{ BUTTON_UPLEFT, Statistic() },
+	{ BUTTON_UPRIGHT, Statistic() },
+	{ BUTTON_DOWNLEFT, Statistic() },
+	{ BUTTON_DOWNRIGHT, Statistic() }
 	};
 };
-
