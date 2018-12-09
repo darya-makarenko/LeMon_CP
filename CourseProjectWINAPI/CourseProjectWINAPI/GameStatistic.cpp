@@ -1,6 +1,6 @@
 #include "GameStatistic.h"
 
-
+GameStatistic::GameStatistic() : GameStatistic(0) { }
 
 GameStatistic::GameStatistic(long startTime)
 {
@@ -58,5 +58,15 @@ void GameStatistic::buttonPush(bool isRight, GameButton button, long pushTime)
 	else {
 		counErrorKeys++;
 	}
+}
+
+time_t GameStatistic::getEndTime()
+{
+    return this->endTime;
+}
+
+void GameStatistic::stopStatistic()
+{
+    this->endTime = time(0);
 }
 

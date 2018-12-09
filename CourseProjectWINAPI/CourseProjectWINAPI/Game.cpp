@@ -12,6 +12,11 @@ bool Game::ButtonInput(DeviceButton db, long inputTime)
 		if (!IsEnd() && gameSequence.getCurrentStep.Direction == currGameButton) {
 		gameSequence.moveToNextStep();
 		*/
+
+        if (IsEnd()) {
+            gameStatistic.stopStatistic();
+        }
+
 		isRight = true;
 	}
 	else {

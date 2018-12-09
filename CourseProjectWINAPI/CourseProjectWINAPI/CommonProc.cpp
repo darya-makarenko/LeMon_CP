@@ -46,3 +46,15 @@ std::string getEditText(HWND hWnd)
 	std::string txtResult = txtSequence;
 	return txtResult;
 }
+
+ATOM RegMyWindowClass(HINSTANCE hInst, LPCTSTR lpzClassName, WNDPROC Proc)
+{
+    WNDCLASS wcWindowClass = { 0 };
+    wcWindowClass.lpfnWndProc = Proc;
+    wcWindowClass.style = CS_HREDRAW | CS_VREDRAW;
+    wcWindowClass.hInstance = hInst;
+    wcWindowClass.lpszClassName = lpzClassName;
+    wcWindowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcWindowClass.hbrBackground = (HBRUSH)COLOR_APPWORKSPACE;
+    return RegisterClass(&wcWindowClass);
+}

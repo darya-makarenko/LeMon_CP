@@ -1,8 +1,7 @@
 #include "Common.h"
 #include "SaveSequenceProc.h"
+#include "GameProc.h"
 
-
-ATOM RegMyWindowClass(HINSTANCE hInst, LPCTSTR lpzClassName, WNDPROC Proc);
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -23,6 +22,7 @@ HWND hWnd;
 HWND HSaveSequence;
 HINSTANCE HInstance;
 LPCTSTR lpzSaveSeq;
+LPCTSTR lpGameClass;
 
 //gdi elements
 HWND HButton_start;
@@ -44,6 +44,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	lpzSaveSeq = TEXT("SaveSequence");
 	if (!RegMyWindowClass(HInstance, lpzSaveSeq, (WNDPROC)WndSequenceProc))
 		return 1;
+
+    lpGameClass = TEXT("Game");
+    if (!RegMyWindowClass(HInstance, lpGameClass, (WNDPROC)GameWindow::GameWindowProc))
+        return 1;
 
 	hWnd = CreateWindow(lpzClass, TEXT("LeMon"),
 		(WS_OVERLAPPEDWINDOW) | WS_VISIBLE | WS_BORDER | WS_CLIPCHILDREN,
@@ -70,30 +74,18 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	return msg.wParam;
 }
 
-
-
-ATOM RegMyWindowClass(HINSTANCE hInst, LPCTSTR lpzClassName, WNDPROC Proc)
-{
-	WNDCLASS wcWindowClass = { 0 };
-	wcWindowClass.lpfnWndProc = Proc;
-	wcWindowClass.style = CS_HREDRAW | CS_VREDRAW;
-	wcWindowClass.hInstance = hInst;
-	wcWindowClass.lpszClassName = lpzClassName;
-	wcWindowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcWindowClass.hbrBackground = (HBRUSH)COLOR_APPWORKSPACE;
-	return RegisterClass(&wcWindowClass);
-}
-
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	std::string str;
-	switch (message)
+
+    switch (message)
 	{
 	case WM_COMMAND:
 		switch (wParam)
 		{
 		case ID_BUTTON_START:
+            GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height);
 			break;
 		case ID_BUTTON_CREATE_SEQUENCE:
 			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, window_rect, 
