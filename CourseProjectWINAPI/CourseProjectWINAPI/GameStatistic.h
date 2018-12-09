@@ -2,7 +2,7 @@
 #include "Statistic.h"
 #include "GameInput.h"
 #include <map>
-#include <ctime>
+#include <time.h>
 
 struct StatStruct
 {
