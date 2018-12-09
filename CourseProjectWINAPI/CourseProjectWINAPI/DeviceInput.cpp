@@ -13,5 +13,15 @@ const ButtonMapping DeviceInput::sButtonMapping[] =
 		ButtonMapEntry(NUMPAD6, BUTTON_RIGHT),
 		ButtonMapEntry(NUMPAD7, BUTTON_UPLEFT),
 		ButtonMapEntry(NUMPAD8, BUTTON_UP),
-		ButtonMapEntry(NUMPAD9, BUTTON_UPRIGHT))
+		ButtonMapEntry(NUMPAD9, BUTTON_UPRIGHT)),
+    //Dance game mat device
+    ButtonMapping(
+        ButtonMapEntry(MAT_UP, BUTTON_UP),
+        ButtonMapEntry(MAT_DOWN, BUTTON_DOWN),
+        ButtonMapEntry(MAT_RIGHT, BUTTON_RIGHT),
+        ButtonMapEntry(MAT_LEFT, BUTTON_LEFT),
+        ButtonMapEntry(MAT_CIRCLE, BUTTON_UPLEFT),
+        ButtonMapEntry(MAT_CROSS, BUTTON_UPRIGHT),
+        ButtonMapEntry(MAT_SQUARE, BUTTON_DOWNRIGHT),
+        ButtonMapEntry(MAT_TRIANGLE, BUTTON_DOWNLEFT))
 };
