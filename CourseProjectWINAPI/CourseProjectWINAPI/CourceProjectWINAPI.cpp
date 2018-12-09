@@ -1,7 +1,3 @@
-#include "SequenceFileReader.h"
-#include "SequenceFileWriter.h"
-#include "StatisticWriter.h"
-#include "StatisticReader.h"
 #include "Common.h"
 #include "SaveSequenceProc.h"
 

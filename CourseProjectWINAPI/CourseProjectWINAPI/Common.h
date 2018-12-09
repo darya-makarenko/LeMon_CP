@@ -3,6 +3,10 @@
 #include <Windows.h>
 #include <string>
 #include "CommonProc.h"
+#include "SequenceFileReader.h"
+#include "SequenceFileWriter.h"
+#include "StatisticWriter.h"
+#include "StatisticReader.h"
 
 // buttons id
 #define ID_BUTTON_START 3001

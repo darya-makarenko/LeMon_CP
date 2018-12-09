@@ -24,7 +24,7 @@ void StatisticWriter::writeStat(GameStatistic stat)
 
 StatStruct StatisticWriter::makeSaveStruct(GameStatistic stat)
 {
-	std::string dt = "05/12/2018";
+	time_t dt = time(NULL);
 
 	StatStruct save_struct;
 
@@ -35,7 +35,7 @@ StatStruct StatisticWriter::makeSaveStruct(GameStatistic stat)
 	save_struct.all_keys_num =  stat.getCountKeys();
 	save_struct.wrong_keys_num = stat.getCountErrorKeys();
 	
-	strncpy_s(save_struct.date, dt.c_str(), 11);
+	save_struct.date = dt;
 
 	save_struct.btn_left_time = stat.getButtonsStatistic()[BUTTON_LEFT].getAverageTime();
 	save_struct.btn_right_time = stat.getButtonsStatistic()[BUTTON_RIGHT].getAverageTime();

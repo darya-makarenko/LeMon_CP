@@ -2,6 +2,7 @@
 #include "Statistic.h"
 #include "GameInput.h"
 #include <map>
+#include <ctime>
 
 struct StatStruct
 {
@@ -10,7 +11,7 @@ struct StatStruct
 	int right_keys_num;
 	int all_keys_num;
 	int wrong_keys_num;
-	char date[11];
+	time_t date;
 
 	double btn_left_time;
 	double btn_right_time;

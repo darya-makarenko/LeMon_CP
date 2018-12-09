@@ -5,7 +5,10 @@ HWND HEdit_sequence;
 LRESULT CALLBACK WndSequenceProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	std::string str;
+	std::string sequence_str, filename;
+	std::vector<std::string> input_seq;
+	Sequence ss, seq;
+	SequenceFileWriter fw;
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -14,11 +17,29 @@ LRESULT CALLBACK WndSequenceProc(
 
 		case ID_BUTTON_SAVE_FILE:
 			//stub for getting edit text
-			str = getEditText(HEdit_sequence);
+			sequence_str = getEditText(HEdit_sequence);
 			//getting edit text
 
-			//открытие диалога сохранения последовательности
-			str = getFileNameDialog(FALSE);
+			ss = Sequence();
+			input_seq = ss.ParseString(sequence_str);
+			if (input_seq.size() == 0)
+			{
+				MessageBox(
+					hWnd,
+					TEXT("Please, enter valid step sequence!"),
+					TEXT("Invalid symbols"),
+					MB_ICONERROR
+				);
+			}
+			else
+			{
+				//открытие диалога сохранения последовательности
+				filename = getFileNameDialog(FALSE);
+
+				seq = Sequence(input_seq);
+				fw = SequenceFileWriter(filename);
+				fw.writeSequence(seq);
+			}
 			break;
 
 		default:
@@ -68,7 +89,7 @@ void showSequenceSaveElements(HINSTANCE HInst, HWND HSaveSequence, RECT window_r
 		HSaveSequence, (HMENU)ID_TEXTBOX_SEQUENCE, HInst, 0);
 
 	//save sequence button
-	HWND HButtonSaveSequence = makeButton(HInst, HSaveSequence, "remember", rect.right + LabelLocation.margin * 3 + LabelLocation.width,
+	HWND HButtonSaveSequence = makeButton(HInst, HSaveSequence, "save", rect.right + LabelLocation.margin * 3 + LabelLocation.width,
 		rect.bottom + ButtonLocation.margin, ButtonLocation.width / 2, ButtonLocation.height / 2, ID_BUTTON_SAVE_FILE);
 }
 

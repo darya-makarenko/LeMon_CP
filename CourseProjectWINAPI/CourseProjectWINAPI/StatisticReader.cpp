@@ -29,14 +29,14 @@ std::vector<StatStruct> StatisticReader::readStatVector()
 	return stat_vec;
 }
 
-std::vector<StatStruct> StatisticReader::findStatisticByDate(std::string date)
+std::vector<StatStruct> StatisticReader::findStatisticByDate(time_t date1, time_t date2)
 {
 	std::ifstream in(currentFile.c_str(), std::ifstream::in | std::ifstream::binary);
 	std::vector<StatStruct> stat_vec;
 	StatStruct temp;
 
 	while (in.read((char*)&temp, sizeof(StatStruct))) {
-		if (std::strncmp(temp.date, date.c_str(), 11) == 0)
+		if (temp.date >= date1 && temp.date <= date2)
 		{
 			stat_vec.push_back(temp);
 		}
@@ -44,5 +44,4 @@ std::vector<StatStruct> StatisticReader::findStatisticByDate(std::string date)
 	in.close();
 	return stat_vec;
 }
-
 
