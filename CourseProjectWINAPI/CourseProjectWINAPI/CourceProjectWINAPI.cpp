@@ -88,7 +88,7 @@ LRESULT CALLBACK WndProc(
             GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height);
 			break;
 		case ID_BUTTON_CREATE_SEQUENCE:
-			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, window_rect, 
+			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, 
 				ButtonLocation, LabelLocation);
 			break;
 		case ID_BUTTON_SHOW_STATISTICS:
