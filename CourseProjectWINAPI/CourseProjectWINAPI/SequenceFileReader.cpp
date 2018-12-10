@@ -30,3 +30,29 @@ Sequence SequenceFileReader::readFromFile()
 	fin.close();
 	return sequence;
 }
+
+bool SequenceFileReader::SetConfigFile(std::string filename)
+{
+	if (filename == "")
+	{
+		return false;
+	}
+
+	std::ofstream fout(CONFIG_FILENAME, std::ios::trunc);
+	fout << filename << std::endl;
+	fout.close();
+
+	return true;
+}
+
+std::string SequenceFileReader::GetSaveSequenceFilename()
+{
+	std::ifstream fin(CONFIG_FILENAME);
+	std::string filename;
+	if (fin.is_open())
+	{
+		getline(fin, filename);
+	}
+	fin.close();
+	return filename;
+}

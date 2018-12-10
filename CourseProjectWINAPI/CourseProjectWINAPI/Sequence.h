@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Step.h"
+#include <sstream>
 
 class Sequence
 {
@@ -10,10 +11,12 @@ private:
 	Step* lastStep;
 	int size;
 	bool isEnd;
+	int IsValidToken(std::string token);
 
 public:
 	Sequence(Step*);
 	Sequence(void);
+	Sequence(std::vector<std::string> str_vector);
 	~Sequence(void);
 
 	int getSize();
@@ -22,5 +25,6 @@ public:
 	Step moveToNextStep(void);
 	Step resetSequence(void);
 	void addNewStep(Step*);
+	std::vector<std::string> ParseString(std::string);
 };
 

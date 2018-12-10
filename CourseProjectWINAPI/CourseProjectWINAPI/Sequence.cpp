@@ -1,6 +1,7 @@
 #include "Sequence.h"
 
 
+
 Sequence::Sequence(Step* startStep)
 {
 	setStartStep(startStep);
@@ -71,3 +72,51 @@ int Sequence::getSize()
 	return size;
 }
 
+int Sequence::IsValidToken(std::string token)
+{
+	if ((atoi(token.c_str()) <= 8) && (atoi(token.c_str()) > 0))
+	{
+		return atoi(token.c_str());
+	}
+	if (token == "0")
+	{
+		return 0;
+	}
+	return -1;
+}
+
+
+std::vector<std::string> Sequence::ParseString(std::string str)
+{
+	std::string buf;
+	std::stringstream ss(str);
+
+	std::vector<std::string> tokens;
+
+	int res;
+	while (ss >> buf)
+	{
+		if ((res = IsValidToken(buf)) != -1)
+		{
+			DirectionInfo di = DirectionInfo();
+			std::wstring dir = di.GetDirectionText(GameButton(res));
+			std::string token_str(dir.begin(), dir.end());
+			tokens.push_back(token_str);
+		}
+	}
+	return tokens;
+}
+
+Sequence::Sequence(std::vector<std::string> str_vector)
+{
+	size = 0;
+	isEnd = false;
+	if (str_vector.size() != 0)
+	{
+		for (std::vector<std::string>::iterator it = str_vector.begin(); it < str_vector.end(); ++it)
+		{
+			std::wstring step_str((*it).begin(), (*it).end());
+			Sequence::addNewStep(new Step(step_str));
+		}
+	}
+}
