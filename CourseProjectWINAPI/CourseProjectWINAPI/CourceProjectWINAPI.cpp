@@ -5,6 +5,7 @@
 #include "Common.h"
 #include "SaveSequenceProc.h"
 #include "GameProc.h"
+#include "StatisticProc.h"
 
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -20,6 +21,8 @@ int window_width, window_height;
 HDC hdc;
 ButtonLocStruct ButtonLocation; //the relational sizes of button elements
 LabelLocStruct LabelLocation; //relational sizes of label elements
+std::string statisticFile = "../Data/gameStatistic.dat";
+
 
 //main windows handles
 HWND hWnd;
@@ -27,6 +30,7 @@ HWND HSaveSequence;
 HINSTANCE HInstance;
 LPCTSTR lpzSaveSeq;
 LPCTSTR lpGameClass;
+LPCTSTR lpStatClass;
 
 //gdi elements
 HWND HButton_start;
@@ -51,6 +55,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
     lpGameClass = TEXT("Game");
     if (!RegMyWindowClass(HInstance, lpGameClass, (WNDPROC)GameWindow::GameWindowProc))
+        return 1;
+
+    lpStatClass = TEXT("Statistic");
+    if (!RegMyWindowClass(HInstance, lpStatClass, (WNDPROC)StatisticWindow::StatisticWindowProc))
         return 1;
 
 	hWnd = CreateWindow(lpzClass, TEXT("LeMon"),
@@ -89,13 +97,14 @@ LRESULT CALLBACK WndProc(
 		switch (wParam)
 		{
 		case ID_BUTTON_START:
-            GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height);
+            GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height, statisticFile);
 			break;
 		case ID_BUTTON_CREATE_SEQUENCE:
 			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, window_rect, 
 				ButtonLocation, LabelLocation);
 			break;
 		case ID_BUTTON_SHOW_STATISTICS:
+            StatisticWindow::ShowStatisticWindow(HInstance, hWnd, lpStatClass, width, height, statisticFile);
 			break;
 		case ID_BUTTON_EXIT:
 			break;

@@ -10,9 +10,9 @@ public:
     //Game(ButtonMapping bm, Sequence seq) : buttonMapping(bm), gameSequence(seq) {}
     ~Game() {}
     bool ButtonInput(DeviceButton db, long inputTime);
-    bool IsEnd() { return gameButtons.size() == 0; }
+    bool IsEnd(); 
     //bool IsEnd() { return gameSequence.IsEnd; }
-    GameButton Current() { return IsEnd() ? GameButton_Invalid : gameButtons.front(); }
+    GameButton Current(); 
     //GameButton Current() { return IsEnd() ? GameButton_Invalid : gameSequence.CurrentStep.Direction; }
     GameStatistic getStatistic();
 

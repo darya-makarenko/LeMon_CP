@@ -11,23 +11,26 @@ namespace GameWindow
         LPCTSTR lpGameStatisticClass;
         HINSTANCE _hInstance;
         GameStatistic statistic;
-        HWND statisticHWnd;
+        HWND statisticHWnd = NULL;
+        std::string statisticFile;
     }
 
-    HWND ShowGameWindow(HINSTANCE hInstance, HWND hWnd, LPCTSTR lpClassName, int width, int height)
+    HWND ShowGameWindow(HINSTANCE hInstance, HWND hWnd, LPCTSTR lpClassName, int width, int height, std::string statFile)
     {
         _hInstance = hInstance;
         HWND hGameWnd = CreateWindowEx(
             0,
             lpClassName,
             TEXT("Game start"),
-            WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_BORDER | WS_MAXIMIZE,
+            WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE,
             CW_USEDEFAULT, CW_USEDEFAULT, width, height,
             hWnd,
             NULL,
             hInstance,
             NULL
         );
+
+        statisticFile = statFile;
 
         lpGameStatisticClass = TEXT("GameStatistic");
         if (!RegMyWindowClass(hInstance, lpGameStatisticClass, (WNDPROC)GameStatisticWindow::GameStatisticWindowProc))
@@ -67,6 +70,11 @@ namespace GameWindow
             }
             //PostQuitMessage(0);
             return 0;
+        case WM_PAINT:
+            if (game != NULL && !game->IsEnd()) {
+                gameArrow.Draw(hWnd, game->Current());
+            }
+            return 0;
         case WM_KEYDOWN:
             switch (wParam)
             {
@@ -84,6 +92,8 @@ namespace GameWindow
                     if (statisticHWnd == NULL) {
                         statistic = game->getStatistic();
                         statisticHWnd = GameStatisticWindow::ShowGameStatisticWindow(_hInstance, hWnd, lpGameStatisticClass, CW_USEDEFAULT, CW_USEDEFAULT, &statistic);
+                        StatisticWriter writer(statisticFile);
+                        writer.writeStat(statistic);
                     }
                 }
                 break;

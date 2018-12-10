@@ -2,13 +2,10 @@
 
 #include <Windows.h>
 #include "GameInput.h"
+#include <math.h>
 
 class GameArrow
 {
-private:
-    HBITMAP arrowBmp;
-    HBITMAP angleArrowBmp;
-
 public:
     GameArrow();
     void Draw(HWND hWnd, GameButton btn);

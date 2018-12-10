@@ -14,6 +14,8 @@
 #define X_TEXT_DELTA 10
 #define Y_TEXT_DELTA 5
 #define STR_BUF_LEN 20
+#define AXIS_LINE_WIDTH 3
+#define ROSE_LINE_WIDTH 3
 
 namespace Draw
 {
@@ -64,7 +66,7 @@ namespace Draw
         void DrawAxis(HDC hDC, POINT centerPoint, DWORD radius)
         {
             HPEN boldPen, oldPen;
-            boldPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 0));
+            boldPen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, RGB(0, 0, 0));
             oldPen = (HPEN)SelectObject(hDC, boldPen);
 
             //Draw horizontal line
@@ -92,7 +94,7 @@ namespace Draw
 
         void DrawRose(HDC hDC, POINT centerPoint, double step, std::map<GameButton, double> *keyAvgTime)
         {
-            HPEN statPen = CreatePen(PS_SOLID, 3, RGB(0, 255, 0));
+            HPEN statPen = CreatePen(PS_SOLID, ROSE_LINE_WIDTH, RGB(0, 255, 0));
             HPEN oldPen = (HPEN)SelectObject(hDC, statPen);
             int prevBkMode = SetBkMode(hDC, TRANSPARENT);
             char valueStr[STR_BUF_LEN];
@@ -169,7 +171,7 @@ namespace Draw
                 side = height;
             }
 
-            DPtoLP(hDC, (LPPOINT)&rect, 2);
+            //DPtoLP(hDC, (LPPOINT)&rect, 2);
             DrawAxis(hDC, centerPoint, side / 2);
 
             DOUBLE step = GetStep(side, keyAvgTime);
@@ -222,3 +224,5 @@ namespace Draw
 #undef COS
 #undef SIN
 #undef GET_STEP
+#undef AXIS_LINE_WIDTH
+#undef ROSE_LINE_WIDTH
