@@ -6,7 +6,6 @@ LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 void showMenu();
-std::string getEditText(HWND hWnd);
 
 //global variables
 
@@ -53,6 +52,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		(WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX) | WS_VISIBLE | WS_BORDER | WS_CLIPCHILDREN,
 		CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL,
 		hInstance, NULL);
+	
+	
 	MSG msg = { 0 };
 	int iGetOk = 0;
 
@@ -107,7 +108,6 @@ LRESULT CALLBACK WndProc(
 		break;
 
 	case WM_DESTROY:
-		
 		PostQuitMessage(0);
 		break;
 
