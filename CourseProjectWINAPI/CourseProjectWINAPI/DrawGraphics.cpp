@@ -16,6 +16,8 @@
 #define STR_BUF_LEN 20
 #define AXIS_LINE_WIDTH 3
 #define ROSE_LINE_WIDTH 3
+#define KEY_DEF_STEP 1
+#define TIME_DEF_STEP 100
 
 namespace Draw
 {
@@ -63,7 +65,7 @@ namespace Draw
             return GET_STEP(side, max);
         }
 
-        void DrawAxis(HDC hDC, POINT centerPoint, DWORD radius)
+        void DrawRoseAxis(HDC hDC, POINT centerPoint, DWORD radius)
         {
             HPEN boldPen, oldPen;
             boldPen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, RGB(0, 0, 0));
@@ -171,13 +173,26 @@ namespace Draw
                 side = height;
             }
 
-            //DPtoLP(hDC, (LPPOINT)&rect, 2);
-            DrawAxis(hDC, centerPoint, side / 2);
+            DrawRoseAxis(hDC, centerPoint, side / 2);
 
             DOUBLE step = GetStep(side, keyAvgTime);
             DrawRose(hDC, centerPoint, step, keyAvgTime);
 
             ReleaseDC(hWnd, hDC);
+        }
+
+        POINT DrawFullStatisticAxis(HDC hDC, DOUBLE maxTime, DWORD maxKeyCount)
+        {
+            DWORD timeStepCount = (DWORD)ceil(maxTime / TIME_DEF_STEP);
+            DWORD keyStepCount = maxKeyCount / KEY_DEF_STEP;
+            std::string maxTimeValueStr = std::to_string((DWORD)(timeStepCount * TIME_DEF_STEP));
+            std::string maxKeyCountStr = std::to_string((DWORD)(keyStepCount * KEY_DEF_STEP));
+            RECT timeRect = { 0 };
+            RECT keyRect = { 0 };
+            DrawText(hDC, maxTimeValueStr.c_str(), -1, &timeRect, DT_CALCRECT);
+            DrawText(hDC, maxKeyCountStr.c_str(), -1, &keyRect, DT_CALCRECT);
+
+            return POINT();
         }
     }
 

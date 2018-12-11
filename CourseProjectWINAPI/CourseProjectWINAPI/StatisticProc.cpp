@@ -101,7 +101,7 @@ namespace StatisticWindow
             WC_LISTVIEW,
             "",
             WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_SHOWSELALWAYS | WS_BORDER | LVS_SINGLESEL,
-            0, 0, (rect.right - rect.left) / 2, rect.bottom - rect.top,
+            0, 0, (rect.right - rect.left) / 2, (rect.bottom - rect.top) / 2,
             hStatWnd,
             NULL,
             hInstance,
@@ -114,7 +114,6 @@ namespace StatisticWindow
         fullStatistic = reader.readStatVector();
 
         FillListView(hWndList, &fullStatistic);
-        DrawAverageStatisticRose(hStatWnd, &fullStatistic);
 
         return hStatWnd;
     }
@@ -123,6 +122,13 @@ namespace StatisticWindow
     {
         switch (uMsg)
         {
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hDC = BeginPaint(hWnd, &ps);
+            DrawAverageStatisticRose(hWnd, &fullStatistic);
+            EndPaint(hWnd, &ps);
+            return 0;
+        }
         default:
             return DefWindowProc(hWnd, uMsg, wParam, lParam);
         }

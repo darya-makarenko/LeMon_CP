@@ -11,8 +11,9 @@ namespace GameWindow
         LPCTSTR lpGameStatisticClass;
         HINSTANCE _hInstance;
         GameStatistic statistic;
-        HWND statisticHWnd = NULL;
+        //HWND hStatisticWnd = NULL;
         std::string statisticFile;
+        BOOL statisticWasShow = FALSE;
     }
 
     HWND ShowGameWindow(HINSTANCE hInstance, HWND hWnd, LPCTSTR lpClassName, int width, int height, std::string statFile)
@@ -22,7 +23,7 @@ namespace GameWindow
             0,
             lpClassName,
             TEXT("Game start"),
-            WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE,
+            WS_OVERLAPPEDWINDOW | WS_VISIBLE,// | WS_MAXIMIZE,
             CW_USEDEFAULT, CW_USEDEFAULT, width, height,
             hWnd,
             NULL,
@@ -33,8 +34,11 @@ namespace GameWindow
         statisticFile = statFile;
 
         lpGameStatisticClass = TEXT("GameStatistic");
-        if (!RegMyWindowClass(hInstance, lpGameStatisticClass, (WNDPROC)GameStatisticWindow::GameStatisticWindowProc))
-            lpGameStatisticClass = NULL;
+        if (!RegMyWindowClass(hInstance, lpGameStatisticClass, (WNDPROC)GameStatisticWindow::GameStatisticWindowProc)) {
+            if (GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
+                lpGameStatisticClass = NULL;
+            }
+        }
 
         return hGameWnd;
     }
@@ -68,7 +72,10 @@ namespace GameWindow
                 delete game;
                 game = NULL;
             }
+            //DestroyWindow(hStatisticWnd);
+            //hStatisticWnd = NULL;
             //PostQuitMessage(0);
+            statisticWasShow = FALSE;
             return 0;
         case WM_PAINT:
             if (game != NULL && !game->IsEnd()) {
@@ -89,11 +96,12 @@ namespace GameWindow
                     gameArrow.Draw(hWnd, game->Current());
                 }
                 if (game->IsEnd()) {
-                    if (statisticHWnd == NULL) {
+                    if (!statisticWasShow) {
                         statistic = game->getStatistic();
-                        statisticHWnd = GameStatisticWindow::ShowGameStatisticWindow(_hInstance, hWnd, lpGameStatisticClass, CW_USEDEFAULT, CW_USEDEFAULT, &statistic);
+                        GameStatisticWindow::ShowGameStatisticWindow(_hInstance, hWnd, lpGameStatisticClass, CW_USEDEFAULT, CW_USEDEFAULT, &statistic);
                         StatisticWriter writer(statisticFile);
                         writer.writeStat(statistic);
+                        statisticWasShow = TRUE;
                     }
                 }
                 break;

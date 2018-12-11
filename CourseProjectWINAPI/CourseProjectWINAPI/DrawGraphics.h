@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include "GameStatistic.h"
 #include <stdio.h>
+#include <math.h>
+#include <string>
 
 namespace Draw
 {
