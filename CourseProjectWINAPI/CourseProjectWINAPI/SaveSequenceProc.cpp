@@ -2,11 +2,14 @@
 
 HWND HEdit_sequence;
 HWND hSaveSequence;
+HWND hParentWindow;
 ButtonLocStruct BtnLoc;
 LabelLocStruct LblLoc;
 RECT WinRect;
 
 void ShowDefaultFileName();
+void ShowHelpPicture();
+void ShowTextLabels();
 
 LRESULT CALLBACK WndSequenceProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -19,11 +22,13 @@ LRESULT CALLBACK WndSequenceProc(
 
 	switch (message)
 	{
-
+	case WM_CREATE:
+		GetClientRect(hWnd, &WinRect);
+		hSaveSequence = hWnd;
+		break;
 	case WM_COMMAND:
 		switch (wParam)
 		{
-
 		case ID_BUTTON_SAVE_FILE:
 			//getting edit text
 			sequence_str = getEditText(HEdit_sequence);
@@ -64,12 +69,23 @@ LRESULT CALLBACK WndSequenceProc(
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 	case WM_SIZE:
+		ShowTextLabels();
+		ShowDefaultFileName();
+		ShowHelpPicture();
+		break;
+
+	case WM_PAINT:
+		ShowTextLabels();
+		ShowDefaultFileName();
+		ShowHelpPicture();
 		break;
 
 	case WM_DESTROY:
-		//чекнуть как закрыть дочернее окно но не закрывать родительское
-		//сделать блокировку родительского окна на время работы дочернего
-		//PostQuitMessage(0);
+		//разблокировка родительского окна при закрытии дочернего окна
+
+		EnableWindow(hParentWindow, TRUE);
+		SetActiveWindow(hParentWindow);
+		//разблокировка родительского окна при закрытии дочернего окна
 		break;
 
 	default:
@@ -136,6 +152,42 @@ void showSequenceSaveElements(HINSTANCE HInst, HWND HSaveSequence, RECT window_r
 
 }
 
+void ShowTextLabels()
+{
+	RECT rect_save{ WinRect.left + LblLoc.margin,
+		LblLoc.margin,
+		WinRect.left + LblLoc.margin + LblLoc.width,
+		LblLoc.margin + LblLoc.height };
+
+	RECT rect_open{ WinRect.left + LblLoc.margin,
+		LblLoc.margin * 3 + LblLoc.height * 2,
+		WinRect.left + LblLoc.margin * 4 + LblLoc.width,
+		LblLoc.margin * 3 + LblLoc.height * 3 };
+
+	//label for sequence edit
+	std::string txtSeqLabel = "Enter the sequence: ";
+	LPCSTR lpTxtSeqLabel = txtSeqLabel.c_str();
+
+	PAINTSTRUCT ps;
+	HDC hdc = BeginPaint(hSaveSequence, &ps);
+	SetBkMode(hdc, TRANSPARENT);
+	DrawText(hdc, lpTxtSeqLabel,
+		txtSeqLabel.size(),
+		&rect_save,
+		0);
+
+	//label for sequence edit
+	std::string txtOpenSeqLabel = "Choose default sequence file: ";
+	LPCSTR lpTxtOpenSeqLabel = txtOpenSeqLabel.c_str();
+
+	DrawText(hdc, lpTxtOpenSeqLabel,
+		txtOpenSeqLabel.size(),
+		&rect_open,
+		0);
+
+	EndPaint(hSaveSequence, &ps);
+}
+
 void ShowDefaultFileName()
 {
 	RECT rect{ WinRect.left + LblLoc.margin * 5 + LblLoc.width,
@@ -199,13 +251,12 @@ void ShowHelpPicture()
 HWND showCreateSequenceMenu(HINSTANCE hInst, HWND hWnd, LPCTSTR lpzSaveSeq, int width, int height,
 	ButtonLocStruct btnloc, LabelLocStruct lls)
 {
+	hParentWindow = hWnd;
 	//bool flag = EnableWindow(hWnd, FALSE);
 	HWND HSaveSequence = CreateWindow(lpzSaveSeq, TEXT("SaveSequence"),
-		(WS_OVERLAPPEDWINDOW) | WS_VISIBLE | WS_BORDER | WS_CLIPCHILDREN,
+		(WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX) | WS_VISIBLE | WS_BORDER | WS_CLIPCHILDREN,
 		CW_USEDEFAULT, CW_USEDEFAULT, width, height, hWnd, NULL,
 		hInst, NULL);
-
-	GetClientRect(HSaveSequence, &WinRect);
 
 	showSequenceSaveElements(hInst, HSaveSequence, WinRect, btnloc, lls);
 	ShowHelpPicture();

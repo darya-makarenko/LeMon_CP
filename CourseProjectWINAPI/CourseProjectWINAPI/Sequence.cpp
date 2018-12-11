@@ -78,10 +78,7 @@ int Sequence::IsValidToken(std::string token)
 	{
 		return atoi(token.c_str());
 	}
-	if (token == "0")
-	{
-		return 0;
-	}
+
 	return -1;
 }
 
