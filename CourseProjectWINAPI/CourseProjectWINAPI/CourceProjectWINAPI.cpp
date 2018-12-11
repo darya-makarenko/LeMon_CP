@@ -2,6 +2,7 @@
 #include "SaveSequenceProc.h"
 #include "GameProc.h"
 #include "StatisticProc.h"
+#include "SequenceFileReader.h"
 
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -92,8 +93,23 @@ LRESULT CALLBACK WndProc(
 	case WM_COMMAND:
 		switch (wParam)
 		{
-		case ID_BUTTON_START:
-            GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height, statisticFile);
+        case ID_BUTTON_START: {
+            SequenceFileReader reader;
+            std::string defSeqFile = reader.GetSaveSequenceFilename();
+            SequenceFileReader defSeqReader(defSeqFile);
+            Sequence sequence = defSeqReader.readFromFile();
+            if (sequence.getSize() != 0) {
+                GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height, statisticFile, sequence);
+            }
+            else {
+                MessageBox(
+                    hWnd,
+                    TEXT("Please, select default not empty sequence in save window!"),
+                    TEXT("Empty sequence"),
+                    MB_ICONERROR
+                );
+            }
+        }
 			break;
 		case ID_BUTTON_CREATE_SEQUENCE:
 			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, 

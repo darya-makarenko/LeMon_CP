@@ -2,24 +2,21 @@
 #include "GameInput.h"
 #include <list>
 #include "GameStatistic.h"
+#include "Sequence.h"
 
 class Game
 {
 public:
-    Game(ButtonMapping bm, std::list<GameButton> vGB, long startTime) : buttonMapping(bm), gameButtons(vGB), gameStatistic(startTime) {}
-    //Game(ButtonMapping bm, Sequence seq) : buttonMapping(bm), gameSequence(seq) {}
+    Game(ButtonMapping bm, Sequence seq, long startTime) : buttonMapping(bm), gameSequence(seq), gameStatistic(startTime) {}
     ~Game() {}
     bool ButtonInput(DeviceButton db, long inputTime);
     bool IsEnd(); 
-    //bool IsEnd() { return gameSequence.IsEnd; }
     GameButton Current(); 
-    //GameButton Current() { return IsEnd() ? GameButton_Invalid : gameSequence.CurrentStep.Direction; }
     GameStatistic getStatistic();
 
 private:
     ButtonMapping buttonMapping;
-    std::list<GameButton> gameButtons;
-    //Sequence gameSequence;
+    Sequence gameSequence;
     GameStatistic gameStatistic;
 };
 

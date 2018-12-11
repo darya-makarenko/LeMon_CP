@@ -1,6 +1,13 @@
 #include "StatisticProc.h"
 
 #define STR_BUF_LEN 20
+#define EPSILON 0,0000000001
+
+typedef struct _btnAvg
+{
+    DWORD count;
+    double allAvgTime;
+} BtnAvg;
 
 namespace StatisticWindow
 {
@@ -38,7 +45,10 @@ namespace StatisticWindow
             for (size_t i = 0; i < pFullStat->size(); i++) {
                 lvi.iItem = i;
                 lvi.iSubItem = 0;
-                lvi.pszText = (*pFullStat)[i].date;
+                time_t date = (*pFullStat)[i].date;
+                char timeBuf[26];
+                ctime_s(timeBuf, sizeof(timeBuf), &date);
+                lvi.pszText = timeBuf;
                 lvi.cColumns = 2;
                 ListView_InsertItem(hListWnd, &lvi);
 
@@ -52,22 +62,43 @@ namespace StatisticWindow
             }
         }
 
-        void DrawAverageStatisticRose(HWND hWnd, std::vector<StatStruct> *pFullStat)
+        StatStruct CountAvgStatistic(std::vector<StatStruct> *pFullStat)
         {
+            int const BTN_COUNT = 8;
             StatStruct avgStat = { 0 };
             size_t statCount = pFullStat->size();
+            BtnAvg avgArray[BTN_COUNT] = { 0 };
             for (size_t i = 0; i < statCount; i++) {
-                avgStat.btn_downleft_time += (*pFullStat)[i].btn_downleft_time / statCount;
-                avgStat.btn_left_time += (*pFullStat)[i].btn_left_time / statCount;
-                avgStat.btn_down_time += (*pFullStat)[i].btn_down_time / statCount;
-                avgStat.btn_up_time += (*pFullStat)[i].btn_up_time / statCount;
-                avgStat.btn_right_time += (*pFullStat)[i].btn_right_time / statCount;
-                avgStat.btn_upleft_time += (*pFullStat)[i].btn_upleft_time / statCount;
-                avgStat.btn_downright_time += (*pFullStat)[i].btn_downright_time / statCount;
-                avgStat.btn_upright_time += (*pFullStat)[i].btn_upright_time / statCount;
-                avgStat.average_time += (*pFullStat)[i].average_time / statCount;
+                double avgTime[BTN_COUNT] = { (*pFullStat)[i].btn_upleft_time, 
+                    (*pFullStat)[i].btn_up_time, 
+                    (*pFullStat)[i].btn_upright_time,
+                    (*pFullStat)[i].btn_right_time,
+                    (*pFullStat)[i].btn_downright_time, 
+                    (*pFullStat)[i].btn_down_time, 
+                    (*pFullStat)[i].btn_downleft_time, 
+                    (*pFullStat)[i].btn_left_time };
+                for (int i = 0; i < BTN_COUNT; i++) {
+                    if (avgTime[i] > EPSILON) {
+                        avgArray[i].allAvgTime += avgTime[i];
+                        avgArray[i].count++;
+                    }
+                }
             }
 
+            avgStat.btn_upleft_time = avgArray[0].allAvgTime / (double)avgArray[0].count;
+            avgStat.btn_up_time = avgArray[1].allAvgTime / (double)avgArray[1].count;
+            avgStat.btn_upright_time = avgArray[2].allAvgTime / (double)avgArray[2].count;
+            avgStat.btn_right_time = avgArray[3].allAvgTime / (double)avgArray[3].count;
+            avgStat.btn_downright_time = avgArray[4].allAvgTime / (double)avgArray[4].count;
+            avgStat.btn_down_time = avgArray[5].allAvgTime / (double)avgArray[5].count;
+            avgStat.btn_downleft_time = avgArray[6].allAvgTime / (double)avgArray[6].count;
+            avgStat.btn_left_time = avgArray[7].allAvgTime / (double)avgArray[7].count;
+            return avgStat;
+        }
+
+        void DrawAverageStatisticRose(HWND hWnd, std::vector<StatStruct> *pFullStat)
+        {
+            StatStruct avgStat = CountAvgStatistic(pFullStat);
             RECT rect;
             GetClientRect(hWnd, &rect);
             rect.left = rect.left + (rect.right - rect.left) / 2;
@@ -136,3 +167,4 @@ namespace StatisticWindow
 }
 
 #undef STR_BUF_LEN
+#undef EPSILON
