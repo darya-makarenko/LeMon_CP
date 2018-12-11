@@ -10,4 +10,5 @@ namespace Draw
 {
     void DrawStatisticRose(HWND hWnd, RECT *lpRect, GameStatistic *stat);
     void DrawStatisticRose(HWND hWnd, RECT *lpRect, StatStruct *stat);
+    void DrawTimeProgressGraphic(HWND hWnd, RECT *lpRect, std::vector<StatStruct> *fullStat);
 }

@@ -2,6 +2,7 @@
 
 #define STR_BUF_LEN 20
 #define EPSILON 0,0000000001
+#define GRAPHIC_MARGIN 20
 
 typedef struct _btnAvg
 {
@@ -38,25 +39,40 @@ namespace StatisticWindow
             ListView_InsertColumn(hListWnd, 1, &lvc);
         }
 
+        typedef struct _statInfo
+        {
+            char *time;
+            char *value;
+        } STATINFO;
+
         void FillListView(HWND hListWnd, std::vector<StatStruct> *pFullStat)
         {
             LV_ITEM lvi = { 0 };
-            lvi.mask = LVIF_TEXT | LVIF_COLUMNS;
+            lvi.mask = LVIF_TEXT | LVIF_PARAM;
+            STATINFO statInfo = { 0 };
             for (size_t i = 0; i < pFullStat->size(); i++) {
                 lvi.iItem = i;
                 lvi.iSubItem = 0;
+                lvi.cchTextMax = 40;
                 time_t date = (*pFullStat)[i].date;
                 char timeBuf[26];
                 ctime_s(timeBuf, sizeof(timeBuf), &date);
-                lvi.pszText = timeBuf;
-                lvi.cColumns = 2;
+                statInfo.time = timeBuf;
+
+                char valueStr[STR_BUF_LEN];
+                int strLen = sprintf_s(valueStr, STR_BUF_LEN, "%.2lf", (*pFullStat)[i].average_time);
+                statInfo.value = valueStr;
+                //statInfo = { timeBuf, valueStr };
+
+                //lvi.pszText = timeBuf;
+                lvi.lParam = (LPARAM)&statInfo;
+                //lvi.cColumns = 2;
                 ListView_InsertItem(hListWnd, &lvi);
 
                 lvi.iItem = i;
                 lvi.iSubItem = 1;
-                char valueStr[STR_BUF_LEN];
-                int strLen = sprintf_s(valueStr, STR_BUF_LEN, "%.2lf", (*pFullStat)[i].average_time);
-                lvi.pszText = valueStr;
+                
+                //lvi.pszText = valueStr;
                 //lvi.cchTextMax = strLen;
                 ListView_InsertItem(hListWnd, &lvi);
             }
@@ -101,9 +117,22 @@ namespace StatisticWindow
             StatStruct avgStat = CountAvgStatistic(pFullStat);
             RECT rect;
             GetClientRect(hWnd, &rect);
-            rect.left = rect.left + (rect.right - rect.left) / 2;
-            rect.bottom = rect.top + (rect.bottom - rect.top) / 2;
+            rect.left = rect.left + (rect.right - rect.left) / 2 + GRAPHIC_MARGIN;
+            rect.bottom = rect.top + (rect.bottom - rect.top) / 2 - GRAPHIC_MARGIN;
+            rect.top += GRAPHIC_MARGIN;
+            rect.right -= GRAPHIC_MARGIN;
             Draw::DrawStatisticRose(hWnd, &rect, &avgStat);
+        }
+
+        void DrawStatisticGraphic(HWND hWnd, std::vector<StatStruct> *pFullStat)
+        {
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+            rect.top = (rect.bottom - rect.top) / 2 + GRAPHIC_MARGIN;
+            rect.bottom -= GRAPHIC_MARGIN;
+            rect.left += GRAPHIC_MARGIN;
+            rect.right -= GRAPHIC_MARGIN;
+            Draw::DrawTimeProgressGraphic(hWnd, &rect, &fullStatistic);
         }
     }
 
@@ -157,6 +186,7 @@ namespace StatisticWindow
             PAINTSTRUCT ps;
             HDC hDC = BeginPaint(hWnd, &ps);
             DrawAverageStatisticRose(hWnd, &fullStatistic);
+            DrawStatisticGraphic(hWnd, &fullStatistic);
             EndPaint(hWnd, &ps);
             return 0;
         }
@@ -168,3 +198,4 @@ namespace StatisticWindow
 
 #undef STR_BUF_LEN
 #undef EPSILON
+#undef GRAPHIC_MARGIN

@@ -65,7 +65,9 @@ namespace GameWindow
         {
             if (game != NULL) {
                 if (!game->IsEnd() && game->ButtonInput(static_cast<DeviceButton>(btn), GetMessageTime())) {
-                    gameArrow.Draw(hWnd, game->Current(), TRUE);
+                    if (!(game->IsEnd())) {
+                        gameArrow.Draw(hWnd, game->Current(), TRUE);
+                    }
                 }
                 if (game->IsEnd()) {
                     if (!statisticWasShow) {
