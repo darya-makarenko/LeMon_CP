@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include "Sequence.h"
+#include "Common.h"
 
 
 class SequenceFileReader
@@ -13,5 +14,7 @@ public:
 	SequenceFileReader(std::string);
 	~SequenceFileReader(void);
 	Sequence readFromFile(void);
+	bool SetConfigFile(std::string);
+	std::string GetSaveSequenceFilename(void);
 };
 
