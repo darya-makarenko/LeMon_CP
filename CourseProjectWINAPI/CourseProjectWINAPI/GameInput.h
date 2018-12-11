@@ -3,15 +3,15 @@
 #include <vector>
 
 enum GameButton {
-	BUTTON_LEFT = 0,
-	BUTTON_RIGHT = 1,
+	BUTTON_LEFT = 4,
+	BUTTON_RIGHT = 5,
 	BUTTON_UP = 2,
-	BUTTON_DOWN = 3,
-	BUTTON_UPRIGHT = 4,
-	BUTTON_UPLEFT = 5,
-	BUTTON_DOWNRIGHT = 6,
-	BUTTON_DOWNLEFT = 7,
-	GameButton_Invalid = 8
+	BUTTON_DOWN = 7,
+	BUTTON_UPRIGHT = 3,
+	BUTTON_UPLEFT = 1,
+	BUTTON_DOWNRIGHT = 8,
+	BUTTON_DOWNLEFT = 6,
+	GameButton_Invalid = 0
 };
 
 enum DeviceButton {

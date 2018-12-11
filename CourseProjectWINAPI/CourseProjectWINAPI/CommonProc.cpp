@@ -42,7 +42,7 @@ std::string getEditText(HWND hWnd)
 {
 	int txtLength = GetWindowTextLength(hWnd);
 	LPSTR txtSequence = new CHAR[txtLength + 1];
-	GetWindowText(hWnd, txtSequence, txtLength);
+	GetWindowText(hWnd, txtSequence, txtLength+1);
 	std::string txtResult = txtSequence;
 	return txtResult;
 }
