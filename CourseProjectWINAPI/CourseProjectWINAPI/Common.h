@@ -19,7 +19,7 @@
 #define ID_TEXTBOX_SEQUENCE 3006
 #define ID_TEXTBOX_FILE_NAME 3007
 
-#define CONFIG_FILENAME "./SEQUENCE_PATH.txt"
+#define CONFIG_FILENAME "../Data/SEQUENCE_PATH.txt"
 
 
 struct ButtonLocStruct
