@@ -117,3 +117,8 @@ Sequence::Sequence(std::vector<std::string> str_vector)
 		}
 	}
 }
+
+bool Sequence::IsEnd()
+{
+    return isEnd;
+}

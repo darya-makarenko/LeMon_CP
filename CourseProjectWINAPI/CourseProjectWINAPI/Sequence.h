@@ -26,5 +26,6 @@ public:
 	Step resetSequence(void);
 	void addNewStep(Step*);
 	std::vector<std::string> ParseString(std::string);
+    bool IsEnd();
 };
 

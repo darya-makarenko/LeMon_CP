@@ -15,5 +15,6 @@ public:
 	~StatisticWriter();
 	void writeStat(GameStatistic);
 	StatStruct makeSaveStruct(GameStatistic);
+    void saveFullStat(std::vector<StatStruct>);
 };
 

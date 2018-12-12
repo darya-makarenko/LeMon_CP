@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include "DrawGraphics.h"
+#include "DrawTable.h"
 
 namespace GameStatisticWindow
 {

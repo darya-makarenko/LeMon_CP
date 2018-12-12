@@ -1,6 +1,8 @@
 #include "Common.h"
 #include "SaveSequenceProc.h"
 #include "GameProc.h"
+#include "StatisticProc.h"
+#include "SequenceFileReader.h"
 
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -15,6 +17,8 @@ int window_width, window_height;
 HDC hdc;
 ButtonLocStruct ButtonLocation; //the relational sizes of button elements
 LabelLocStruct LabelLocation; //relational sizes of label elements
+std::string statisticFile = "../Data/gameStatistic.st";
+
 
 //main windows handles
 HWND hWnd;
@@ -22,6 +26,7 @@ HWND HSaveSequence;
 HINSTANCE HInstance;
 LPCTSTR lpzSaveSeq;
 LPCTSTR lpGameClass;
+LPCTSTR lpStatClass;
 
 //gdi elements
 HWND HButton_start;
@@ -46,6 +51,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
     lpGameClass = TEXT("Game");
     if (!RegMyWindowClass(HInstance, lpGameClass, (WNDPROC)GameWindow::GameWindowProc))
+        return 1;
+
+    lpStatClass = TEXT("Statistic");
+    if (!RegMyWindowClass(HInstance, lpStatClass, (WNDPROC)StatisticWindow::StatisticWindowProc))
         return 1;
 
 	hWnd = CreateWindow(lpzClass, TEXT("LeMon"),
@@ -85,8 +94,24 @@ LRESULT CALLBACK WndProc(
 	case WM_COMMAND:
 		switch (wParam)
 		{
-		case ID_BUTTON_START:
-            GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height);
+        case ID_BUTTON_START: {
+            SequenceFileReader reader;
+            std::string defSeqFile = reader.GetSaveSequenceFilename();
+            SequenceFileReader defSeqReader(defSeqFile);
+            Sequence sequence = defSeqReader.readFromFile();
+            if (sequence.getSize() != 0) {
+                EnableWindow(hWnd, FALSE);
+                GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height, statisticFile, sequence);
+            }
+            else {
+                MessageBox(
+                    hWnd,
+                    TEXT("Please, select default not empty sequence in save window!"),
+                    TEXT("Empty sequence"),
+                    MB_ICONERROR
+                );
+            }
+        }
 			break;
 		case ID_BUTTON_CREATE_SEQUENCE:
 			//блокировка родительского окна на время работы дочернего
@@ -95,7 +120,10 @@ LRESULT CALLBACK WndProc(
 			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, 
 				ButtonLocation, LabelLocation);
 			break;
-		case ID_BUTTON_SHOW_STATISTICS:
+        case ID_BUTTON_SHOW_STATISTICS: {
+            EnableWindow(hWnd, FALSE);
+            StatisticWindow::ShowStatisticWindow(HInstance, hWnd, lpStatClass, 1.5 * width, height, statisticFile);
+        }
 			break;
 		case ID_BUTTON_EXIT:
 			PostQuitMessage(0);

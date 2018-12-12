@@ -75,6 +75,12 @@
     <ClInclude Include="GameStatisticProc.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="StatisticProc.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawTable.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectionInfo.cpp">
@@ -132,6 +138,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="GameStatisticProc.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="StatisticProc.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawTable.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

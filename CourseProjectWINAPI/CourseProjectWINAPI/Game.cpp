@@ -5,16 +5,12 @@
 bool Game::ButtonInput(DeviceButton db, long inputTime)
 {
 	bool isRight;
-	GameButton currGameButton = buttonMapping.GetGameButton(db);
-	if (!IsEnd() && gameButtons.front() == currGameButton) {
-		gameButtons.pop_front();
-		/*
-		if (!IsEnd() && gameSequence.getCurrentStep.Direction == currGameButton) {
-		gameSequence.moveToNextStep();
-		*/
+	GameButton currGameButton = this->buttonMapping.GetGameButton(db);
+	if (!IsEnd() && this->gameSequence.getCurrentStep().getDirection() == currGameButton) {
+        this->gameSequence.moveToNextStep();
 
         if (IsEnd()) {
-            gameStatistic.stopStatistic();
+            this->gameStatistic.stopStatistic();
         }
 
 		isRight = true;
@@ -24,11 +20,21 @@ bool Game::ButtonInput(DeviceButton db, long inputTime)
 		isRight = false;
 	}
 
-	gameStatistic.buttonPush(isRight, currGameButton, inputTime);
+	this->gameStatistic.buttonPush(isRight, currGameButton, inputTime);
 	return isRight;
+}
+
+bool Game::IsEnd()
+{
+    return this->gameSequence.IsEnd();
+}
+
+GameButton Game::Current()
+{
+    return IsEnd() ? GameButton_Invalid : this->gameSequence.getCurrentStep().getDirection();
 }
 
 GameStatistic Game::getStatistic()
 {
-	return gameStatistic;
+	return this->gameStatistic;
 }

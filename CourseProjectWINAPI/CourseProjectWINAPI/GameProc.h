@@ -8,9 +8,11 @@
 #include <algorithm>
 #include "DrawGraphics.h"
 #include "GameArrow.h"
+#include "StatisticWriter.h"
+#include "Sequence.h"
 
 namespace GameWindow
 {
-    HWND ShowGameWindow(HINSTANCE hInstance, HWND hWnd, LPCTSTR lpClassName, int width, int height);
+    HWND ShowGameWindow(HINSTANCE hInstance, HWND hWnd, LPCTSTR lpClassName, int width, int height, std::string statFile, Sequence sequence);
     LRESULT CALLBACK GameWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 }
