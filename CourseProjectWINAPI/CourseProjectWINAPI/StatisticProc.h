@@ -7,6 +7,8 @@
 #include "StatisticReader.h"
 #include <commctrl.h>
 #include "DrawGraphics.h"
+#include "DrawTable.h"
+#include "Common.h"
 
 namespace StatisticWindow
 {

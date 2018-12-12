@@ -61,6 +61,7 @@ namespace GameStatisticWindow
             values.push_back(std::string(valueStr));
             countRows++;
         }
+
         values.push_back("Avg. push time");
         sprintf_s(valueStr, COUNT_CHARS, "%.2lf", gameStatistic->getAverageTime());
         values.push_back(std::string(valueStr));

@@ -18,10 +18,12 @@
 #define ROSE_LINE_WIDTH 3
 #define KEY_DEF_STEP 1
 #define MAX_X_ELEMENTS_COUNT 5
-#define ERR_COLOR RGB(153, 0, 0)
-#define TIME_COLOR RGB(76, 153, 0)
+#define ERR_COLOR RGB(255, 102, 102)
+#define TIME_COLOR RGB(153, 204, 255)
+#define DATE_COLOR RGB(0, 0, 0)
 #define SHORT_LINE_LENGTH 10
 #define TEXT_MARGIN 5
+#define SHORT_DATE_LENGTH 11
 
 namespace Draw
 {
@@ -247,9 +249,14 @@ namespace Draw
             return max;
         }
 
-        void DrawShortLine(HDC hDC, POINT point)
+        void DrawShortHorizontalLine(HDC hDC, POINT point)
         {
             DrawLine(hDC, { point.x - (LONG)(SHORT_LINE_LENGTH / 2), point.y }, {point.x + (LONG)(SHORT_LINE_LENGTH / 2), point.y});
+        }
+
+        void DrawShortVerticalLine(HDC hDC, POINT point)
+        {
+            DrawLine(hDC, { point.x, point.y - (LONG)(SHORT_LINE_LENGTH / 2) }, { point.x, point.y + (LONG)(SHORT_LINE_LENGTH / 2) });
         }
 
         RECT GetMaxTextRect(HDC hDC, std::string str)
@@ -267,14 +274,14 @@ namespace Draw
         POINT DrawErrKeysAxis(HDC hDC, RECT rect, DWORD maxCount, DWORD *countIntervals)
         {
             DWORD countStep = 1;
-            if (maxCount < *countIntervals) {
+            if (maxCount < *countIntervals && maxCount != 0) {
                 *countIntervals = maxCount;
             }
-            else {
+            else if (maxCount != 0) {
                 countStep = (DWORD)floor(maxCount / *countIntervals);
             }
 
-            RECT textRect = GetMaxTextRect(hDC, std::to_string(maxCount));
+            RECT textRect = GetMaxTextRect(hDC, std::to_string(countStep * (*countIntervals)));
             textRect.right -= TEXT_MARGIN;
             LONG x = rect.right - textRect.right;
             DrawLine(hDC, { x, rect.bottom }, { x, rect.top });
@@ -282,11 +289,34 @@ namespace Draw
             DOUBLE step = GET_STEP((rect.bottom - rect.top) * 2, *countIntervals);
             for (DWORD i = 0; i <= *countIntervals; i++) {
                 POINT point = { x, (LONG)(rect.bottom - i * step) };
-                DrawShortLine(hDC, point);
+                DrawShortHorizontalLine(hDC, point);
                 DrawCenterText(hDC, point, textRect.bottom, std::to_string(i * countStep));
             }
 
             return { x, rect.bottom };
+        }
+
+        void DrawErrKeyLine(HDC hDC, RECT rect, DWORD countIntervals, std::vector<StatStruct> *fullStat)
+        {
+            POINT startPoint = { rect.left, rect.bottom };
+            DWORD maxErrKey = GetMaxErrorKeyCount(fullStat);
+            HPEN errCountPen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, ERR_COLOR);
+            HPEN oldPen = (HPEN)SelectObject(hDC, errCountPen);
+
+            time_t start = fullStat->front().date;
+            DOUBLE yStep = (DOUBLE)(GET_STEP((rect.bottom - rect.top) * 2, countIntervals)) / floor(maxErrKey / countIntervals);
+            long double xStep = (long double)((rect.right - rect.left) / (DOUBLE)(fullStat->back().date - start));
+
+            POINT prev = { startPoint.x, startPoint.y - (LONG)(yStep * fullStat->front().wrong_keys_num) };
+            for (size_t i = 0; i < (*fullStat).size(); i++) {
+                POINT curr = { startPoint.x + (LONG)(xStep * ((*fullStat)[i].date - start)), startPoint.y - (LONG)(yStep * (*fullStat)[i].wrong_keys_num) };
+                DrawLine(hDC, prev, curr);
+                prev = curr;
+            }
+
+
+            SelectObject(hDC, oldPen);
+            DeleteObject(errCountPen);
         }
 
         POINT DrawTimeAxis(HDC hDC, RECT rect, DOUBLE maxTime, DWORD *countIntervals)
@@ -303,7 +333,7 @@ namespace Draw
             DOUBLE timeStep = maxTime / *countIntervals;
             for (DWORD i = 0; i <= *countIntervals; i++) {
                 POINT point = { x, (LONG)(rect.bottom - i * step) };
-                DrawShortLine(hDC, point);
+                DrawShortHorizontalLine(hDC, point);
                 strLen = sprintf_s(valueStr, STR_BUF_LEN, "%.2lf", i * timeStep);
                 DrawCenterText(hDC, {point.x - textRect.right, point.y }, textRect.bottom, std::string(valueStr));
             }
@@ -311,11 +341,33 @@ namespace Draw
             return { x, rect.bottom };
         }
 
-        POINT DrawFullStatisticAxis(HDC hDC, RECT rect, std::vector<StatStruct> *fullStat)
+        void DrawAvgTimeLine(HDC hDC, RECT rect, DWORD countIntervals, std::vector<StatStruct> *fullStat)
+        {
+            POINT startPoint = { rect.left, rect.bottom };
+            DOUBLE maxAvgTime = GetMaxAvgTime(fullStat);
+            HPEN avgTimePen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, TIME_COLOR);
+            HPEN oldPen = (HPEN)SelectObject(hDC, avgTimePen);
+            time_t start = fullStat->front().date;
+            DOUBLE yStep = (DOUBLE)(GET_STEP((rect.bottom - rect.top) * 2, countIntervals)) / (maxAvgTime / countIntervals);
+            long double xStep = (long double)((rect.right - rect.left) / (DOUBLE)(fullStat->back().date - start));
+            
+            POINT prev = { startPoint.x, startPoint.y - (LONG)(yStep * fullStat->front().average_time) };
+            for (size_t i = 0; i < (*fullStat).size(); i++) {
+                POINT curr = { startPoint.x + (LONG)(xStep * ((*fullStat)[i].date - start)), startPoint.y - (LONG)(yStep * (*fullStat)[i].average_time) };
+                DrawLine(hDC, prev, curr);
+                prev = curr;
+            }
+
+            SelectObject(hDC, oldPen);
+            DeleteObject(avgTimePen);
+        }
+
+        void DrawFullStatistic(HDC hDC, RECT rect, std::vector<StatStruct> *fullStat)
         {
             int prevBkMode = SetBkMode(hDC, TRANSPARENT);
             HPEN avgTimePen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, TIME_COLOR);
             HPEN errCountPen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, ERR_COLOR);
+            HPEN datePen = CreatePen(PS_SOLID, AXIS_LINE_WIDTH, DATE_COLOR);
             DWORD timeIntervalCount = MAX_X_ELEMENTS_COUNT,
                 keyIntervalCount = MAX_X_ELEMENTS_COUNT;
 
@@ -323,67 +375,93 @@ namespace Draw
             DWORD maxErrKeyCount = GetMaxErrorKeyCount(fullStat);
            
             //Count under line text height 
+            RECT dateRect = { 0 };
+            char startDateStr[SHORT_DATE_LENGTH], endDateStr[SHORT_DATE_LENGTH];
+            tm time = { 0 };
+            localtime_s(&time, &(fullStat->front().date));
+            strftime(startDateStr, SHORT_DATE_LENGTH, "%d/%m/%Y", &time);
+            localtime_s(&time, &(fullStat->back().date));
+            strftime(endDateStr, SHORT_DATE_LENGTH, "%d/%m/%Y", &time);
+            DrawText(hDC, startDateStr, -1, &dateRect, DT_CALCRECT);
+            rect.bottom -= (dateRect.bottom + TEXT_MARGIN);
 
             HPEN oldPen = (HPEN)SelectObject(hDC, avgTimePen);
             POINT timeStartPoint = DrawTimeAxis(hDC, rect, maxAvgTime, &timeIntervalCount);
             SelectObject(hDC, errCountPen);
             POINT keyStartPoint = DrawErrKeysAxis(hDC, rect, maxErrKeyCount, &keyIntervalCount);
-            SelectObject(hDC, oldPen);
+            SelectObject(hDC, datePen);
 
             DrawLine(hDC, timeStartPoint, keyStartPoint);
+            TextOut(hDC, timeStartPoint.x, rect.bottom + TEXT_MARGIN, startDateStr, SHORT_DATE_LENGTH);
+            TextOut(hDC, keyStartPoint.x - dateRect.right, rect.bottom + TEXT_MARGIN, endDateStr, SHORT_DATE_LENGTH);
+
+            SelectObject(hDC, oldPen);
+
+            rect.left = timeStartPoint.x;
+            rect.right = keyStartPoint.x;
+
+            DrawAvgTimeLine(hDC, rect, timeIntervalCount, fullStat);
+            DrawErrKeyLine(hDC, rect, keyIntervalCount, fullStat);
 
             DeleteObject(avgTimePen);
             DeleteObject(errCountPen);
+            DeleteObject(datePen);
             SetBkMode(hDC, prevBkMode);
-            return POINT();
         }
     }
 
     void DrawStatisticRose(HWND hWnd, RECT *lpRect, GameStatistic *stat)
     {
-        std::map<GameButton, Statistic> keysStat = stat->getButtonsStatistic();
-        std::map<GameButton, double> keyAvgTime{
-            { BUTTON_DOWN, keysStat[BUTTON_DOWN].getAverageTime() },
-            { BUTTON_UP, keysStat[BUTTON_UP].getAverageTime() },
-            { BUTTON_RIGHT, keysStat[BUTTON_RIGHT].getAverageTime() },
-            { BUTTON_LEFT, keysStat[BUTTON_LEFT].getAverageTime() },
-            { BUTTON_UPRIGHT, keysStat[BUTTON_UPRIGHT].getAverageTime() },
-            { BUTTON_UPLEFT, keysStat[BUTTON_UPLEFT].getAverageTime() },
-            { BUTTON_DOWNRIGHT, keysStat[BUTTON_DOWNRIGHT].getAverageTime() },
-            { BUTTON_DOWNLEFT, keysStat[BUTTON_DOWNLEFT].getAverageTime() }
-        };
-        DrawStatisticRose(hWnd, lpRect, &keyAvgTime);
+        if (stat != NULL) {
+            std::map<GameButton, Statistic> keysStat = stat->getButtonsStatistic();
+            std::map<GameButton, double> keyAvgTime{
+                { BUTTON_DOWN, keysStat[BUTTON_DOWN].getAverageTime() },
+                { BUTTON_UP, keysStat[BUTTON_UP].getAverageTime() },
+                { BUTTON_RIGHT, keysStat[BUTTON_RIGHT].getAverageTime() },
+                { BUTTON_LEFT, keysStat[BUTTON_LEFT].getAverageTime() },
+                { BUTTON_UPRIGHT, keysStat[BUTTON_UPRIGHT].getAverageTime() },
+                { BUTTON_UPLEFT, keysStat[BUTTON_UPLEFT].getAverageTime() },
+                { BUTTON_DOWNRIGHT, keysStat[BUTTON_DOWNRIGHT].getAverageTime() },
+                { BUTTON_DOWNLEFT, keysStat[BUTTON_DOWNLEFT].getAverageTime() }
+            };
+            DrawStatisticRose(hWnd, lpRect, &keyAvgTime);
+        }
     }
 
     void DrawStatisticRose(HWND hWnd, RECT *lpRect, StatStruct *stat)
     {
-        std::map<GameButton, double> keyAvgTime{
-            { BUTTON_DOWN, stat->btn_down_time },
-            { BUTTON_UP, stat->btn_up_time },
-            { BUTTON_RIGHT, stat->btn_right_time },
-            { BUTTON_LEFT, stat->btn_left_time },
-            { BUTTON_UPRIGHT, stat->btn_upright_time },
-            { BUTTON_UPLEFT, stat->btn_upleft_time },
-            { BUTTON_DOWNRIGHT, stat->btn_downright_time },
-            { BUTTON_DOWNLEFT, stat->btn_downleft_time }
-        };
-        DrawStatisticRose(hWnd, lpRect, &keyAvgTime);
+        if (stat != NULL) {
+            std::map<GameButton, double> keyAvgTime{
+                { BUTTON_DOWN, stat->btn_down_time },
+                { BUTTON_UP, stat->btn_up_time },
+                { BUTTON_RIGHT, stat->btn_right_time },
+                { BUTTON_LEFT, stat->btn_left_time },
+                { BUTTON_UPRIGHT, stat->btn_upright_time },
+                { BUTTON_UPLEFT, stat->btn_upleft_time },
+                { BUTTON_DOWNRIGHT, stat->btn_downright_time },
+                { BUTTON_DOWNLEFT, stat->btn_downleft_time }
+            };
+            DrawStatisticRose(hWnd, lpRect, &keyAvgTime);
+        }
     }
 
     void DrawTimeProgressGraphic(HWND hWnd, RECT *lpRect, std::vector<StatStruct> *fullStat)
     {
-        HDC hDC = GetDC(hWnd);
-        RECT rect;
-        if (lpRect == NULL) {
-            if (!GetClientRect(hWnd, &rect)) {
-                return;
+        if (fullStat != NULL && fullStat->size() > 0)
+        {
+            HDC hDC = GetDC(hWnd);
+            RECT rect;
+            if (lpRect == NULL) {
+                if (!GetClientRect(hWnd, &rect)) {
+                    return;
+                }
             }
-        }
-        else {
-            rect = *lpRect;
-        }
+            else {
+                rect = *lpRect;
+            }
 
-        POINT zeroPoint = DrawFullStatisticAxis(hDC, rect, fullStat);
+            DrawFullStatistic(hDC, rect, fullStat);
+        }
     }
 }
 
@@ -403,3 +481,4 @@ namespace Draw
 #undef MAX_X_ELEMENTS_COUNT
 #undef ERR_COLOR
 #undef TIME_COLOR
+#undef DATE_COLOR

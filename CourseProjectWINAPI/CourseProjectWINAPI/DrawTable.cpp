@@ -1,7 +1,8 @@
 #include "DrawTable.h"
 
 #define BORDER_LINE_WEIGHT 3
-#define INNER_LINE_WEIGHT 2
+#define INNER_LINE_WEIGHT 1
+#define HEADER_COLOR RGB(205, 255, 229)
 
 namespace DrawTable
 {
@@ -9,6 +10,45 @@ namespace DrawTable
     {
         MoveToEx(hDC, point1.x, point1.y, (LPPOINT)NULL);
         LineTo(hDC, point2.x, point2.y);
+    }
+
+    std::vector<DWORD> CountColumnsWidth(HDC hDC, RECT *rect, DWORD columnCount, std::vector<std::string> *values)
+    {
+        RECT cellRect = { 0 };
+        std::vector<DWORD> columnsWidth;
+        LONG fullWidth = 0;
+
+        for (DWORD i = 0; i < columnCount; i++) {
+            if (i < values->size()) {
+                DrawText(hDC, (*values)[i].c_str(), -1, &cellRect, DT_CALCRECT);
+                columnsWidth.push_back(cellRect.right);
+                fullWidth += cellRect.right;
+            }
+            else {
+                columnsWidth.push_back(0);
+            }
+        }
+
+        LONG delta = rect->right - rect->left - fullWidth;
+        if (delta != 0) {
+            if (delta > 0) {
+                delta = (LONG)(delta / columnCount);
+            }
+            else {
+                delta = (LONG)floor(delta / (LONG)columnCount);
+            }
+
+            for (DWORD i = 0; i < columnCount; i++) {
+                if (((LONG)(columnsWidth[i]) + delta) >= 0) {
+                    columnsWidth[i] += delta;
+                }
+                else {
+                    columnsWidth[i] = 0;
+                }
+            }
+        }
+
+        return columnsWidth;
     }
 
     void Draw(HWND hWnd, RECT *rect, std::vector<std::string> values, DWORD countColumns, DWORD countRows)
@@ -24,17 +64,19 @@ namespace DrawTable
         SelectObject(hDC, innerPen);
         DeleteObject(borderPen);
 
-        DWORD columnWidth = (rect->right - rect->left) / countColumns;
-
+        std::vector<DWORD> columnsWidth = CountColumnsWidth(hDC, rect, countColumns, &values);
+    
         DWORD rowHeight = (rect->bottom - rect->top) / countRows;
 
-        HBRUSH headerBrush = CreateSolidBrush(RGB(150, 255, 150));
+        HBRUSH headerBrush = CreateSolidBrush(HEADER_COLOR);
         HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, headerBrush);
         Rectangle(hDC, rect->left, rect->top, rect->right, rect->top + rowHeight);
         SelectObject(hDC, oldBrush);
 
-        for (DWORD i = 1; i < countColumns; i++) {
-            DrawLine(hDC, { rect->left + (LONG)(i * columnWidth), rect->top }, { rect->left + (LONG)(i * columnWidth), rect->bottom });
+        LONG width = 0;
+        for (DWORD i = 0; i < countColumns - 1; i++) {
+            width += (LONG)columnsWidth[i];
+            DrawLine(hDC, { rect->left + (LONG)(width), rect->top }, { rect->left + (LONG)(width), rect->bottom });
         }
 
         for (DWORD i = 1; i < countRows; i++) {
@@ -44,12 +86,16 @@ namespace DrawTable
         int prevBkMode = SetBkMode(hDC, TRANSPARENT);
         RECT cellRect;
         for (DWORD i = 0; i < countRows; i++) {
+            DWORD width = 0;
             for (DWORD j = 0; j < countColumns; j++) {
                 cellRect.top = rect->top + i * rowHeight;
                 cellRect.bottom = cellRect.top + rowHeight;
-                cellRect.left = rect->left + j * columnWidth;
-                cellRect.right = cellRect.left + columnWidth;
-                DrawText(hDC, values[(i * countColumns + j)].c_str(), -1, &cellRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER | DT_CENTER);
+                cellRect.left = rect->left + width;
+                cellRect.right = cellRect.left + columnsWidth[j];
+                width += columnsWidth[j];
+                if (i * countColumns + j < values.size()) {
+                    DrawText(hDC, values[(i * countColumns + j)].c_str(), -1, &cellRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER | DT_CENTER);
+                }
             }
         }
 
@@ -61,3 +107,4 @@ namespace DrawTable
 
 #undef BORDER_LINE_WEIGHT
 #undef INNER_LINE_WEIGHT
+#undef HEADER_COLOR
