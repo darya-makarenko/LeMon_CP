@@ -17,7 +17,7 @@ int window_width, window_height;
 HDC hdc;
 ButtonLocStruct ButtonLocation; //the relational sizes of button elements
 LabelLocStruct LabelLocation; //relational sizes of label elements
-std::string statisticFile = "../Data/gameStatistic.dat";
+std::string statisticFile = "../Data/gameStatistic.st";
 
 
 //main windows handles
@@ -100,6 +100,7 @@ LRESULT CALLBACK WndProc(
             SequenceFileReader defSeqReader(defSeqFile);
             Sequence sequence = defSeqReader.readFromFile();
             if (sequence.getSize() != 0) {
+                EnableWindow(hWnd, FALSE);
                 GameWindow::ShowGameWindow(HInstance, hWnd, lpGameClass, width, height, statisticFile, sequence);
             }
             else {
@@ -119,8 +120,10 @@ LRESULT CALLBACK WndProc(
 			showCreateSequenceMenu(HInstance, hWnd, lpzSaveSeq, width, height, 
 				ButtonLocation, LabelLocation);
 			break;
-		case ID_BUTTON_SHOW_STATISTICS:
-            StatisticWindow::ShowStatisticWindow(HInstance, hWnd, lpStatClass, width, height, statisticFile);
+        case ID_BUTTON_SHOW_STATISTICS: {
+            EnableWindow(hWnd, FALSE);
+            StatisticWindow::ShowStatisticWindow(HInstance, hWnd, lpStatClass, 1.5 * width, height, statisticFile);
+        }
 			break;
 		case ID_BUTTON_EXIT:
 			PostQuitMessage(0);

@@ -8,6 +8,7 @@
 namespace GameStatisticWindow
 {
     GameStatistic *gameStatistic = NULL;
+    HWND hParentWnd;
 
     HWND ShowGameStatisticWindow(HINSTANCE hInstance, HWND hWnd, LPCTSTR lpClassName, int width, int height, GameStatistic *stat)
     {
@@ -15,7 +16,7 @@ namespace GameStatisticWindow
             0,
             lpClassName,
             TEXT("Game statistic"),
-            WS_VISIBLE | WS_BORDER | WS_POPUPWINDOW | WS_OVERLAPPEDWINDOW,
+            WS_VISIBLE | WS_BORDER | WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, width, height,
             hWnd,
             NULL,
@@ -23,11 +24,10 @@ namespace GameStatisticWindow
             NULL
         );
 
-        DWORD err = GetLastError();
+        hParentWnd = hWnd;
 
         gameStatistic = stat;
 
-        ShowWindow(hGameStatWnd, SW_MAXIMIZE);
         return hGameStatWnd;
     }
 
@@ -110,14 +110,10 @@ namespace GameStatisticWindow
     {
         switch (uMsg)
         {
-        //case WM_CREATE:
-            //return 0;
         case WM_DESTROY: {
-            HWND hParentWnd = GetParent(hWnd);
             if (hParentWnd != NULL) {
                 PostMessage(hParentWnd, WM_CLOSE, 0, 0);
             }
-            //PostQuitMessage(0);
             return 0;
         }
         case WM_PAINT:

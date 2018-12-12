@@ -49,3 +49,13 @@ StatStruct StatisticWriter::makeSaveStruct(GameStatistic stat)
 	
 	return save_struct;
 }
+
+void StatisticWriter::saveFullStat(std::vector<StatStruct> fullStat)
+{
+    std::ofstream out(currentFile.c_str(), std::ofstream::out | std::ofstream::app | std::ofstream::binary);
+    for (size_t i = 0; i < fullStat.size(); i++) {
+        StatStruct save_struct = fullStat[i];
+        out.write(reinterpret_cast<char*>(&save_struct), sizeof(save_struct));
+    }
+    out.close();
+}

@@ -15,35 +15,36 @@ namespace DrawTable
     std::vector<DWORD> CountColumnsWidth(HDC hDC, RECT *rect, DWORD columnCount, std::vector<std::string> *values)
     {
         RECT cellRect = { 0 };
-        std::vector<DWORD> columnsWidth;
+        std::vector<DWORD> columnsWidth(columnCount);
         LONG fullWidth = 0;
 
+        for (size_t i = 0; i < values->size(); i += columnCount) {
+            for (DWORD j = 0; j < columnCount; j++) {
+                if (i + j < values->size()) {
+                    DrawText(hDC, (*values)[i + j].c_str(), -1, &cellRect, DT_CALCRECT);
+                    if (columnsWidth[j] < cellRect.right) {
+                        columnsWidth[j] = cellRect.right;
+                    }
+                }
+            }
+        }
+
         for (DWORD i = 0; i < columnCount; i++) {
-            if (i < values->size()) {
-                DrawText(hDC, (*values)[i].c_str(), -1, &cellRect, DT_CALCRECT);
-                columnsWidth.push_back(cellRect.right);
-                fullWidth += cellRect.right;
-            }
-            else {
-                columnsWidth.push_back(0);
-            }
+            fullWidth += columnsWidth[i];
         }
 
         LONG delta = rect->right - rect->left - fullWidth;
         if (delta != 0) {
             if (delta > 0) {
                 delta = (LONG)(delta / columnCount);
-            }
-            else {
-                delta = (LONG)floor(delta / (LONG)columnCount);
-            }
-
-            for (DWORD i = 0; i < columnCount; i++) {
-                if (((LONG)(columnsWidth[i]) + delta) >= 0) {
+                for (DWORD i = 0; i < columnCount; i++) {
                     columnsWidth[i] += delta;
                 }
-                else {
-                    columnsWidth[i] = 0;
+            }
+            else {
+                LONG width = (rect->right - rect->left) / columnCount;
+                for (DWORD i = 0; i < columnCount; i++) {
+                    columnsWidth[i] = width;
                 }
             }
         }

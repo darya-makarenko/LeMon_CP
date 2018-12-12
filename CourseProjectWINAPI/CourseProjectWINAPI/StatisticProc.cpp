@@ -29,6 +29,7 @@ namespace StatisticWindow
         HWND hButtonSave;
         HWND hButtonPrev;
         HWND hButtonNext;
+        HWND hParentWnd;
 
         StatStruct CountAvgStatistic(std::vector<StatStruct> *pFullStat)
         {
@@ -209,6 +210,7 @@ namespace StatisticWindow
             NULL
         );
 
+        hParentWnd = hWnd;
         currIndex = 0;
 
         StatisticReader reader(statisticFile);
@@ -224,15 +226,31 @@ namespace StatisticWindow
     {
         switch (uMsg)
         {
+        case WM_DESTROY:
+            if (hParentWnd != NULL) {
+                EnableWindow(hParentWnd, TRUE);
+                SetActiveWindow(hParentWnd);
+            }
+            return 0;
         case WM_COMMAND:
             switch (wParam)
             {
             case ID_BUTTON_SAVE: {
-
+                std::string filename = getStatFileNameDialog(FALSE);
+                if (filename != "") {
+                    StatisticWriter writer(filename);
+                    writer.saveFullStat(fullStatistic);
+                }
             }
-            break;
+                break;
             case ID_BUTTON_LOAD: {
-
+                std::string filename = getStatFileNameDialog(TRUE);
+                if (filename != "") {
+                    StatisticReader reader(filename);
+                    fullStatistic = reader.readStatVector();
+                    currIndex = 0;
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
             }
                 break;
             case ID_BUTTON_PREV:
@@ -254,6 +272,14 @@ namespace StatisticWindow
             ShowTable(hWnd);
             MoveButtons(hWnd);
             EndPaint(hWnd, &ps);
+            
+            if (currIndex == 0) {
+                EnableWindow(hButtonPrev, FALSE);
+            }
+            
+            if (currIndex + COUNT_ROWS >= fullStatistic.size()) {
+                EnableWindow(hButtonNext, FALSE);
+            }
             return 0;
         }
         default:

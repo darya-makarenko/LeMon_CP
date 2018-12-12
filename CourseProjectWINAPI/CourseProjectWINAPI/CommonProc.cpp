@@ -38,6 +38,31 @@ std::string getFileNameDialog(BOOL flSaveOpen)
 	return szDirect;
 }
 
+std::string getStatFileNameDialog(BOOL flSaveOpen)
+{
+    OPENFILENAME ofn = { 0 };
+    char szDirect[260];
+    char szFileName[260];
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szDirect;
+    *(ofn.lpstrFile) = 0;
+    ofn.nMaxFile = sizeof(szDirect);
+    //ofn.lpstrFilter = NULL;
+    ofn.lpstrFilter = TEXT("Format: ST\0*.st\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = szFileName;
+    *(ofn.lpstrFileTitle) = 0;
+    ofn.nMaxFileTitle = sizeof(szFileName);
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_EXPLORER;
+    if (flSaveOpen)
+        GetOpenFileName(&ofn);
+    else
+        GetSaveFileName(&ofn);
+    return szDirect;
+}
+
 std::string getEditText(HWND hWnd)
 {
 	int txtLength = GetWindowTextLength(hWnd);

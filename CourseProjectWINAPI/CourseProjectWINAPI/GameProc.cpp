@@ -23,6 +23,7 @@ namespace GameWindow
         HFONT hFont = NULL;
         Sequence gameSequence;
         BOOL joyAttached = FALSE;
+        HWND hParentWnd;
 
         void DestroyTimer(HWND hWnd)
         {
@@ -76,6 +77,7 @@ namespace GameWindow
                         StatisticWriter writer(statisticFile);
                         writer.writeStat(statistic);
                         statisticWasShow = TRUE;
+                        EnableWindow(hWnd, FALSE);
                     }
                 }
             }
@@ -134,6 +136,7 @@ namespace GameWindow
             NULL
         );
 
+        hParentWnd = hWnd;
         statisticFile = statFile;
         gameSequence = sequence;
 
@@ -165,6 +168,10 @@ namespace GameWindow
                 DestroyTimer(hWnd);
             }
             statisticWasShow = FALSE;
+            if (hParentWnd != NULL) {
+                EnableWindow(hParentWnd, TRUE);
+                SetActiveWindow(hParentWnd);
+            }
             return 0;
         case WM_SHOWWINDOW:
             timerID = SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
