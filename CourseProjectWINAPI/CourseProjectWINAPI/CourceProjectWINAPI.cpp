@@ -122,7 +122,7 @@ LRESULT CALLBACK WndProc(
 			break;
         case ID_BUTTON_SHOW_STATISTICS: {
             EnableWindow(hWnd, FALSE);
-            StatisticWindow::ShowStatisticWindow(HInstance, hWnd, lpStatClass, 1.5 * width, height, statisticFile);
+            StatisticWindow::ShowStatisticWindow(HInstance, hWnd, lpStatClass, 1.25 * width, 1.25 * height, statisticFile);
         }
 			break;
 		case ID_BUTTON_EXIT:

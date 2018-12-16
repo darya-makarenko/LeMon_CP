@@ -1,7 +1,10 @@
 #include "DrawGraphics.h"
 
+// Sin and cos of 45 angle
 #define SIN 0.70710678118
 #define COS 0.70710678118
+
+// Count coordinates in directions
 #define LEFT_COORDINATE(centerPoint, radius) { (int)centerPoint.x - (int)radius, (int)centerPoint.y }
 #define RIGHT_COORDINATE(centerPoint, radius) { (int)centerPoint.x + (int)radius, (int)centerPoint.y }
 #define DOWN_COORDINATE(centerPoint, radius) { (int)centerPoint.x, (int)centerPoint.y + (int)radius }
@@ -10,31 +13,48 @@
 #define DOWNLEFT_COORDINATE(centerPoint, radius) { (int)(centerPoint.x - ((int)radius) * COS), (int)(centerPoint.y + ((int)radius)  * SIN) }
 #define UPRIGHT_COORDINATE(centerPoint, radius) { (int)(centerPoint.x + ((int)radius) * COS), (int)(centerPoint.y - ((int)radius)  * SIN) }
 #define DOWNRIGHT_COORDINATE(centerPoint, radius) { (int)(centerPoint.x + ((int)radius) * COS), (int)(centerPoint.y + ((int)radius)  * SIN) }
+
+// Get step of points on graphic
 #define GET_STEP(side, max) ((side * 0.9) / (2 * max))
+
+// Displace of tag strings
 #define X_TEXT_DELTA 10
 #define Y_TEXT_DELTA 5
+
+// Size of string buffer
 #define STR_BUF_LEN 20
+#define SHORT_DATE_LENGTH 11
+
+// Width of axis lines
 #define AXIS_LINE_WIDTH 3
 #define ROSE_LINE_WIDTH 3
-#define KEY_DEF_STEP 1
+
+// Max count of intervals in full statistic graphic
 #define MAX_X_ELEMENTS_COUNT 5
+
+// Colors of full statistic lines
 #define ERR_COLOR RGB(255, 102, 102)
 #define TIME_COLOR RGB(153, 204, 255)
 #define DATE_COLOR RGB(0, 0, 0)
+
+// Length of short lines on axis
 #define SHORT_LINE_LENGTH 10
+
+// Margin of axis text
 #define TEXT_MARGIN 5
-#define SHORT_DATE_LENGTH 11
 
 namespace Draw
 {
     namespace
     {
+        // Draw the line from point1 to point2
         void DrawLine(HDC hDC, POINT point1, POINT point2)
         {
             MoveToEx(hDC, point1.x, point1.y, (LPPOINT)NULL);
             LineTo(hDC, point2.x, point2.y);
         }
 
+        // Get step of points on graphic
         DOUBLE GetStep(DWORD side, std::map<GameButton, double> *keyAvgTime)
         {
             double max = (*keyAvgTime)[BUTTON_DOWN];
@@ -71,6 +91,7 @@ namespace Draw
             return GET_STEP(side, max);
         }
 
+        // Draw the axis of "wind" rose graphic
         void DrawRoseAxis(HDC hDC, POINT centerPoint, DWORD radius)
         {
             HPEN boldPen, oldPen;
@@ -100,6 +121,7 @@ namespace Draw
             SelectObject(hDC, oldPen);
         }
 
+        // Output the value string
         void DrawValue(HDC hDC, RECT *rect, POINT rightUpPoint, char *str)
         {
             RECT textRect = { 0 };
@@ -115,6 +137,7 @@ namespace Draw
             TextOut(hDC, rightUpPoint.x, rightUpPoint.y, str, strlen(str)); 
         }
 
+        // Draw the values of each rose point
         void DrawValues(HDC hDC, POINT centerPoint, DWORD radius, std::map<GameButton, double> *keyAvgTime)
         {
             char valueStr[STR_BUF_LEN];
@@ -160,6 +183,7 @@ namespace Draw
             SetBkMode(hDC, prevBkMode);
         }
 
+        // Draw the values line of "wind" rose
         void DrawRose(HDC hDC, POINT centerPoint, DWORD side, std::map<GameButton, double> *keyAvgTime)
         {
             DOUBLE step = GetStep(side, keyAvgTime);
@@ -190,6 +214,7 @@ namespace Draw
             DeleteObject(statPen);
         }
 
+        // Draw the "wind" rose of each game key data
         void DrawStatisticRose(HWND hWnd, RECT *lpRect, std::map<GameButton, double> *keyAvgTime)
         {
             HDC hDC = GetDC(hWnd);
@@ -223,6 +248,7 @@ namespace Draw
             ReleaseDC(hWnd, hDC);
         }
 
+        // Get max count of error keys
         DWORD GetMaxErrorKeyCount(std::vector<StatStruct> *fullStat)
         {
             DWORD max = 0;
@@ -236,6 +262,7 @@ namespace Draw
             return max;
         }
 
+        // Get max value of average key press time
         DOUBLE GetMaxAvgTime(std::vector<StatStruct> *fullStat)
         {
             DOUBLE max = 0;
@@ -249,16 +276,19 @@ namespace Draw
             return max;
         }
 
+        // Draw short horizontal line on the axis point
         void DrawShortHorizontalLine(HDC hDC, POINT point)
         {
             DrawLine(hDC, { point.x - (LONG)(SHORT_LINE_LENGTH / 2), point.y }, {point.x + (LONG)(SHORT_LINE_LENGTH / 2), point.y});
         }
 
+        // Draw short vertical line on the axis point
         void DrawShortVerticalLine(HDC hDC, POINT point)
         {
             DrawLine(hDC, { point.x, point.y - (LONG)(SHORT_LINE_LENGTH / 2) }, { point.x, point.y + (LONG)(SHORT_LINE_LENGTH / 2) });
         }
 
+        // Get the rectangle that nedded for given string
         RECT GetMaxTextRect(HDC hDC, std::string str)
         {
             RECT rect = { 0 };
@@ -266,11 +296,13 @@ namespace Draw
             return rect;
         }
 
+        // Output of text center align of the point
         void DrawCenterText(HDC hDC, POINT point, DWORD textHight, std::string str)
         {
             TextOut(hDC, point.x + TEXT_MARGIN, point.y - textHight, str.c_str(), str.size());
         }
 
+        // Draw the axis of error keys values
         POINT DrawErrKeysAxis(HDC hDC, RECT rect, DWORD maxCount, DWORD *countIntervals)
         {
             DWORD countStep = 1;
@@ -296,6 +328,7 @@ namespace Draw
             return { x, rect.bottom };
         }
 
+        // Draw the line of error keys on graphic
         void DrawErrKeyLine(HDC hDC, RECT rect, DWORD countIntervals, std::vector<StatStruct> *fullStat)
         {
             POINT startPoint = { rect.left, rect.bottom };
@@ -314,11 +347,11 @@ namespace Draw
                 prev = curr;
             }
 
-
             SelectObject(hDC, oldPen);
             DeleteObject(errCountPen);
         }
 
+        // Draw the axis of average key pres time
         POINT DrawTimeAxis(HDC hDC, RECT rect, DOUBLE maxTime, DWORD *countIntervals)
         {
             char valueStr[STR_BUF_LEN];
@@ -341,6 +374,7 @@ namespace Draw
             return { x, rect.bottom };
         }
 
+        // Draw the line of average key press time on graphic
         void DrawAvgTimeLine(HDC hDC, RECT rect, DWORD countIntervals, std::vector<StatStruct> *fullStat)
         {
             POINT startPoint = { rect.left, rect.bottom };
@@ -362,6 +396,22 @@ namespace Draw
             DeleteObject(avgTimePen);
         }
 
+        // Draw the legend of graphic
+        void DrawGraphicLegend(HDC hDC,RECT rect, std::string x1Str, HPEN x1Pen, std::string x2Str, HPEN x2Pen)
+        {
+            HPEN oldPen = (HPEN)SelectObject(hDC, x1Pen);
+            DrawShortHorizontalLine(hDC, {rect.left, rect.top + (rect.bottom - rect.top) / 2});
+            RECT strRect = { 0 };
+            DrawText(hDC, x1Str.c_str(), -1, &strRect, DT_CALCRECT);
+            TextOut(hDC, rect.left + SHORT_LINE_LENGTH + TEXT_MARGIN, rect.top, x1Str.c_str(), x1Str.size());
+            rect.left += strRect.right + TEXT_MARGIN * 3 + SHORT_LINE_LENGTH;
+            SelectObject(hDC, x2Pen);
+            DrawShortHorizontalLine(hDC, { rect.left, rect.top + (rect.bottom - rect.top) / 2 });
+            TextOut(hDC, rect.left + SHORT_LINE_LENGTH + TEXT_MARGIN, rect.top, x2Str.c_str(), x2Str.size());
+            SelectObject(hDC, oldPen);
+        }
+
+        // Draw the graphic of full statistic
         void DrawFullStatistic(HDC hDC, RECT rect, std::vector<StatStruct> *fullStat)
         {
             int prevBkMode = SetBkMode(hDC, TRANSPARENT);
@@ -383,7 +433,8 @@ namespace Draw
             localtime_s(&time, &(fullStat->back().date));
             strftime(endDateStr, SHORT_DATE_LENGTH, "%d/%m/%Y", &time);
             DrawText(hDC, startDateStr, -1, &dateRect, DT_CALCRECT);
-            rect.bottom -= (dateRect.bottom + TEXT_MARGIN);
+            DrawGraphicLegend(hDC, { rect.left, rect.bottom - dateRect.bottom - TEXT_MARGIN, rect.right, rect.bottom }, "Avg. time (ms.)", avgTimePen, "Count error keys", errCountPen);
+            rect.bottom -= (2 * (dateRect.bottom + TEXT_MARGIN));
 
             HPEN oldPen = (HPEN)SelectObject(hDC, avgTimePen);
             POINT timeStartPoint = DrawTimeAxis(hDC, rect, maxAvgTime, &timeIntervalCount);
@@ -410,6 +461,7 @@ namespace Draw
         }
     }
 
+    // Draw the "wind" rose of key press time of given statistic
     void DrawStatisticRose(HWND hWnd, RECT *lpRect, GameStatistic *stat)
     {
         if (stat != NULL) {
@@ -428,6 +480,7 @@ namespace Draw
         }
     }
 
+    // Draw the "wind" rose of key press time of given statistic
     void DrawStatisticRose(HWND hWnd, RECT *lpRect, StatStruct *stat)
     {
         if (stat != NULL) {
@@ -445,6 +498,7 @@ namespace Draw
         }
     }
 
+    // Draw the graphic of full statistic
     void DrawTimeProgressGraphic(HWND hWnd, RECT *lpRect, std::vector<StatStruct> *fullStat)
     {
         if (fullStat != NULL && fullStat->size() > 0)

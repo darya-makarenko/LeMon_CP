@@ -89,8 +89,9 @@ namespace GameStatisticWindow
         GetClientRect(hWnd, &rect);
         rect.top = (rect.bottom - rect.top) / 2 + TABLE_MARGIN;
         rect.left += TABLE_MARGIN;
-
+        
         HDC hDC = GetDC(hWnd);
+        int prevBkMode = SetBkMode(hDC, TRANSPARENT);
         std::string infoString = "Push keys count: " + std::to_string(gameStatistic->getCountKeys());
         TextOut(hDC, rect.left, rect.top, infoString.c_str(), infoString.size());
         rect.top += TEXT_INTERVAL;
@@ -102,6 +103,7 @@ namespace GameStatisticWindow
         SetTextColor(hDC, RGB(153, 0, 0));
         TextOut(hDC, rect.left, rect.top, infoString.c_str(), infoString.size());
         SetTextColor(hDC, oldColor);
+        SetBkMode(hDC, prevBkMode);
 
         ReleaseDC(hWnd, hDC);
     }
