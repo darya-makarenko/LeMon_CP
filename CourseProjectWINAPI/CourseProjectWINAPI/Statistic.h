@@ -8,7 +8,7 @@ public:
 	double getAverageTime();
 	void addTime(long waitTime);
 
-protected:
+private:
 	long waitTime;
 	int count;
 };

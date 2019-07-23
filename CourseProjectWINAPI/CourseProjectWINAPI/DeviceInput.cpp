@@ -1,7 +1,6 @@
 #include "DeviceInput.h"
 
-
-
+// Mapping of device buttons and buttons in game
 const ButtonMapping DeviceInput::sButtonMapping[] =
 {
 	//Numpad game device
@@ -20,8 +19,8 @@ const ButtonMapping DeviceInput::sButtonMapping[] =
         ButtonMapEntry(MAT_DOWN, BUTTON_DOWN),
         ButtonMapEntry(MAT_RIGHT, BUTTON_RIGHT),
         ButtonMapEntry(MAT_LEFT, BUTTON_LEFT),
-        ButtonMapEntry(MAT_CIRCLE, BUTTON_UPLEFT),
-        ButtonMapEntry(MAT_CROSS, BUTTON_UPRIGHT),
+        ButtonMapEntry(MAT_CROSS, BUTTON_UPLEFT),
+        ButtonMapEntry(MAT_CIRCLE, BUTTON_UPRIGHT),
         ButtonMapEntry(MAT_SQUARE, BUTTON_DOWNRIGHT),
         ButtonMapEntry(MAT_TRIANGLE, BUTTON_DOWNLEFT))
 };
